@@ -33,7 +33,7 @@ namespace Server.Network
 		Encoded = 0xC0
 	}
 
-	public static class PacketHandlers
+	public static partial class PacketHandlers
 	{
 		private static readonly PacketHandler[] m_Handlers;
 
@@ -2756,11 +2756,13 @@ namespace Server.Network
 		{
 			public DateTime Age;
 			public ClientVersion Version;
+			public bool OpenUO;
 
-			public AuthIDPersistence(ClientVersion v)
+			public AuthIDPersistence(ClientVersion v, bool openUO)
 			{
 				Age = DateTime.UtcNow;
 				Version = v;
+				OpenUO = openUO;
 			}
 		}
 
@@ -2769,7 +2771,7 @@ namespace Server.Network
 		private static readonly Dictionary<uint, AuthIDPersistence> m_AuthIDWindow =
 			new Dictionary<uint, AuthIDPersistence>(m_AuthIDWindowSize);
 
-		private static uint GenerateAuthID(NetState state)
+		public static uint GenerateAuthID(NetState state)
 		{
 			if (m_AuthIDWindow.Count == m_AuthIDWindowSize)
 			{
@@ -2801,7 +2803,7 @@ namespace Server.Network
 			}
 			while (m_AuthIDWindow.ContainsKey(authID));
 
-			m_AuthIDWindow[authID] = new AuthIDPersistence(state.Version);
+			m_AuthIDWindow[authID] = new AuthIDPersistence(state.Version, state.OpenUOClient);
 
 			return authID;
 		}
@@ -2839,6 +2841,7 @@ namespace Server.Network
 				m_AuthIDWindow.Remove(authID);
 
 				state.Version = ap.Version;
+				state.OpenUOClient = ap.OpenUO;
 			}
 			else if (m_ClientVerification)
 			{
@@ -2908,10 +2911,9 @@ namespace Server.Network
 			}
 			else
 			{
-				state.AuthID = GenerateAuthID(state);
-
-				state.SentFirstPacket = false;
-				state.Send(new PlayServerAck(info[index], state.AuthID));
+				ServerInfo si = info[index];
+				EventSink.InvokeServerSelect(new SelectServerEventArgs(state, si));
+				//state.Send(new PlayServerAck(info[index], state.AuthID));
 			}
 		}
 

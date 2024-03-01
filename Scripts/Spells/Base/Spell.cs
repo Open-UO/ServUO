@@ -28,6 +28,8 @@ namespace Server.Spells
         private SpellState m_State;
         private long m_CastTime;
         private IDamageable m_InstantTarget;
+        private IDamageable m_InstantTargetBeneficial;
+        private IDamageable m_InstantTargetHostile;
 
         public int ID => SpellRegistry.GetRegistryNumber(this);
 
@@ -42,6 +44,8 @@ namespace Server.Spells
         public long CastTime => m_CastTime;
 
         public IDamageable InstantTarget { get { return m_InstantTarget; } set { m_InstantTarget = value; } }
+        public IDamageable InstantTargetBeneficial { get { return m_InstantTargetBeneficial; } set { m_InstantTargetBeneficial = value; } }
+        public IDamageable InstantTargetHostile { get { return m_InstantTargetHostile; } set { m_InstantTargetHostile = value; } }
 
         public bool Disturbed { get; set; }
 
@@ -804,7 +808,7 @@ namespace Server.Spells
 
             Target originalTarget = m_Caster.Target;
 
-            if (InstantTarget == null || !OnCastInstantTarget())
+            if ((InstantTarget == null && InstantTargetBeneficial == null) || !OnCastInstantTarget())
             {
                 OnCast();
             }
@@ -818,7 +822,7 @@ namespace Server.Spells
         #region Enhanced Client
         public bool OnCastInstantTarget()
         {
-            if (InstantTarget == null)
+            if (InstantTarget == null && InstantTargetBeneficial == null)
                 return false;
 
             Type spellType = GetType();
@@ -844,8 +848,28 @@ namespace Server.Spells
 
                     if (t != null)
                     {
-                        t.Invoke(Caster, InstantTarget);
-                        return true;
+                    	if (InstantTargetBeneficial != null && t.Flags == TargetFlags.Beneficial) {
+	                        if (Caster.InRange(InstantTargetBeneficial.Location, t.Range))
+	                        {
+		                        t.Invoke(Caster, InstantTargetBeneficial);
+		                        return true;
+	                        }
+                        }
+                    	else if (InstantTargetHostile != null && t.Flags != TargetFlags.Beneficial) {
+	                        if (Caster.InRange(InstantTargetHostile.Location, t.Range))
+	                        {
+		                        t.Invoke(Caster, InstantTargetHostile);
+		                        return true;
+	                        }
+                        }
+                        else
+                    	{
+	                        if (InstantTarget != null && Caster.InRange(InstantTarget.Location, t.Range))
+	                        {
+		                        t.Invoke(Caster, InstantTarget);
+		                        return true;
+	                        }
+                        }
                     }
                 }
             }

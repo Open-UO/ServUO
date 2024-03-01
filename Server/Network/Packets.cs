@@ -3954,7 +3954,7 @@ namespace Server.Network
 		Warned = 0x10
 	}
 
-	public abstract class Packet
+	public abstract partial class Packet
 	{
 		protected PacketWriter m_Stream;
 
@@ -3997,7 +3997,7 @@ namespace Server.Network
 			}
 		}
 
-		public void EnsureCapacity(int length)
+		public virtual void EnsureCapacity(int length)
 		{
 			m_Stream = PacketWriter.CreateInstance(length);// new PacketWriter( length );
 			m_Stream.Write((byte)m_PacketID);
