@@ -6,7 +6,7 @@ using Server.Network;
 
 namespace Server.Targeting
 {
-	public abstract class Target
+	public abstract partial class Target
 	{
 		private static int m_NextTargetID;
 

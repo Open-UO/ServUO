@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Server.OpenUO;
+
 #endregion
 
 namespace Server.Mobiles
@@ -2311,7 +2313,7 @@ namespace Server.Mobiles
             int delay = (int)(TransformMoveDelay(m_Mobile.CurrentSpeed) * 1000);
 
             bool mounted = (m_Mobile.Mounted || m_Mobile.Flying);
-            bool running = CanRun && (mounted ? (delay < Mobile.WalkMount) : (delay < Mobile.WalkFoot));
+            bool running = CanRun && (mounted ? (delay < MovementSettings.MoveSpeedWalkingMounted) : (delay < MovementSettings.MoveSpeedWalkingUnmounted));
 
             if (running)
             {

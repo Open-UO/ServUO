@@ -32,7 +32,7 @@ namespace Server.Network
 	public delegate void NetStateCreatedCallback(NetState ns);
 
 	[PropertyObject]
-	public class NetState : IComparable<NetState>
+	public partial class NetState : IComparable<NetState>
 	{
 		public static bool BufferStaticPackets = false;
 
@@ -453,6 +453,8 @@ namespace Server.Network
 				return;
 			}
 
+			if (p.OpenUOEnhanced && !OpenUOClient)
+				return;
 
 			var buffer = p.Compile(CompressionEnabled, out var length);
 

@@ -1380,7 +1380,7 @@ namespace Server
 			m_SpellID = spellID;
 		}
 	}
-
+	
 	public class TargetedSkillEventArgs : EventArgs
 	{
 		private readonly Mobile m_Mobile;
@@ -1687,7 +1687,7 @@ namespace Server
 		}
 	}
 
-	public static class EventSink
+	public static partial class EventSink
 	{
 		public static event OnItemObtainedEventHandler OnItemObtained;
 		public static event CheckEquipItemEventHandler CheckEquipItem;

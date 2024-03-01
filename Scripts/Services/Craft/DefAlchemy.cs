@@ -1,5 +1,7 @@
 using Server.Items;
 using System;
+using Server.OpenUO;
+using Server.OpenUO.Base;
 
 namespace Server.Engines.Craft
 {
@@ -101,9 +103,61 @@ namespace Server.Engines.Craft
             }
         }
 
+        public static void Initialize()
+        {
+	        new PotionSetting(0, 1044538, typeof(RefreshPotion));
+	        new PotionSetting(1, 1044539, typeof(TotalRefreshPotion));
+	        new PotionSetting(2, 1044543, typeof(LesserHealPotion));
+	        new PotionSetting(3, 1044544, typeof(HealPotion));
+	        new PotionSetting(4, 1044545, typeof(GreaterHealPotion));
+	        new PotionSetting(5, 1044552, typeof(LesserCurePotion));
+	        new PotionSetting(6, 1044553, typeof(CurePotion));
+	        new PotionSetting(7, 1044554, typeof(GreaterCurePotion));
+	        //new PotionSetting(8, 1112762, typeof(ElixirOfRebirth));
+	        //new PotionSetting(9, 1156724, typeof(BarrabHemolymphConcentrate));
+	        new PotionSetting(10, 1044540, typeof(AgilityPotion));
+	        new PotionSetting(11, 1044541, typeof(GreaterAgilityPotion));
+	        new PotionSetting(12, 1044542, typeof(NightSightPotion));
+	        new PotionSetting(13, 1044546, typeof(StrengthPotion));
+	        new PotionSetting(14, 1044547, typeof(GreaterStrengthPotion));
+	        new PotionSetting(15, 1074860, typeof(InvisibilityPotion));
+	        //new PotionSetting(16, 1156726, typeof(JukariBurnPoiltice));
+	        //new PotionSetting(17, 1156728, typeof(KurakAmbushersEssence));
+	        //new PotionSetting(18, 1156729, typeof(BarakoDraftOfMight));
+	        //new PotionSetting(19, 1156734, typeof(UraliTranceTonic));
+	        //new PotionSetting(20, 1156732, typeof(SakkhraProphylaxisPotion));
+	        new PotionSetting(21, 1044548, typeof(LesserPoisonPotion));
+	        new PotionSetting(22, 1044549, typeof(PoisonPotion));
+	        new PotionSetting(23, 1044550, typeof(GreaterPoisonPotion));
+	        new PotionSetting(24, 1044551, typeof(DeadlyPoisonPotion));
+	        new PotionSetting(25, 1072942, typeof(ParasiticPotion));
+	        new PotionSetting(26, 1072943, typeof(DarkglowPotion));
+	        //new PotionSetting(27, 1112292, typeof(ScouringToxin));
+	        new PotionSetting(28, 1044555, typeof(LesserExplosionPotion));
+	        new PotionSetting(29, 1044556, typeof(ExplosionPotion));
+	        new PotionSetting(30, 1044557, typeof(GreaterExplosionPotion));
+	        new PotionSetting(31, 1072096, typeof(ConflagrationPotion));
+	        new PotionSetting(32, 1072099, typeof(GreaterConflagrationPotion));
+	        new PotionSetting(33, 1072106, typeof(ConfusionBlastPotion));
+	        new PotionSetting(34, 1072109, typeof(GreaterConfusionBlastPotion));
+	        
+	        EventSink.EnhancedPotionUseSpecific += EventSinkOnEnhancedPotionUseSpecific;
+        }
+
+        private static void EventSinkOnEnhancedPotionUseSpecific(EnhancedPotionEventArgs e)
+        {
+	        if (e.Type == null || e.Mobile == null)
+		        return;
+	        var item = e.Mobile.Backpack.FindItemByType(e.Type, true);
+	        if (item != null)
+	        {
+		        item.OnDoubleClick(e.Mobile);
+	        }
+        }
+
         public override void InitCraftList()
         {
-            int index = -1;
+	        int index = -1;
 
             // Healing and Curative
             index = AddCraft(typeof(RefreshPotion), 1116348, 1044538, -25, 25.0, typeof(BlackPearl), 1044353, 1, 1044361);

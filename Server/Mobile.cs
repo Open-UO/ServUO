@@ -14,6 +14,7 @@ using Server.Items;
 using Server.Menus;
 using Server.Mobiles;
 using Server.Network;
+using Server.OpenUO;
 using Server.Prompts;
 using Server.Targeting;
 #endregion
@@ -526,7 +527,7 @@ namespace Server
 	///     Base class representing players, npcs, and creatures.
 	/// </summary>
 	[System.Runtime.InteropServices.ComVisible(true)]
-	public class Mobile : IEntity, IHued, IComparable<Mobile>, ISerializable, ISpawnable, IDamageable
+	public partial class Mobile : IEntity, IHued, IComparable<Mobile>, ISerializable, ISpawnable, IDamageable
 	{
 		#region CompareTo(...)
 		public int CompareTo(IEntity other)
@@ -2554,6 +2555,8 @@ namespace Server
 				if (newTarget != null && m_NetState != null && !m_TargetLocked)
 				{
 					m_NetState.Send(newTarget.GetPacketFor(m_NetState));
+					if (m_NetState.OpenUOClient && (newTarget.AreaOfEffectRange > 0 || newTarget.PreviewID > 0))
+						m_NetState.Send(newTarget.ExtraPacket(m_NetState));
 				}
 
 				OnTargetChange();
@@ -2865,15 +2868,15 @@ namespace Server
 
 		public bool Pushing { get => m_Pushing; set => m_Pushing = value; }
 
-		private static int m_WalkFoot = 400;
-		private static int m_RunFoot = 200;
-		private static int m_WalkMount = 200;
-		private static int m_RunMount = 100;
+		//private static int m_WalkFoot = 400;
+		//private static int m_RunFoot = 200;
+		//private static int m_WalkMount = 200;
+		//private static int m_RunMount = 100;
 
-		public static int WalkFoot { get => m_WalkFoot; set => m_WalkFoot = value; }
-		public static int RunFoot { get => m_RunFoot; set => m_RunFoot = value; }
-		public static int WalkMount { get => m_WalkMount; set => m_WalkMount = value; }
-		public static int RunMount { get => m_RunMount; set => m_RunMount = value; }
+		//public static int WalkFoot { get => m_WalkFoot; set => m_WalkFoot = value; }
+		//public static int RunFoot { get => m_RunFoot; set => m_RunFoot = value; }
+		//public static int WalkMount { get => m_WalkMount; set => m_WalkMount = value; }
+		//public static int RunMount { get => m_RunMount; set => m_RunMount = value; }
 
 		private long m_EndQueue;
 
@@ -3251,11 +3254,13 @@ namespace Server
 
 			if (Mounted)
 			{
-				delay = (dir & Direction.Running) != 0 ? m_RunMount : m_WalkMount;
+				delay = (dir & Direction.Running) != 0 ? 
+					MovementSettings.MoveSpeedRunningMounted : MovementSettings.MoveSpeedWalkingMounted ;
 			}
 			else
 			{
-				delay = (dir & Direction.Running) != 0 ? m_RunFoot : m_WalkFoot;
+				delay = (dir & Direction.Running) != 0 ? 
+					MovementSettings.MoveSpeedRunningUnmounted  : MovementSettings.MoveSpeedWalkingUnmounted ;
 			}
 
 			return delay;

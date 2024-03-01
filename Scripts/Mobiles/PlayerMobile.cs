@@ -40,6 +40,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Server.Engines.ArenaSystem;
+using Server.OpenUO;
 using RankDefinition = Server.Guilds.RankDefinition;
 #endregion
 
@@ -831,7 +832,7 @@ namespace Server.Mobiles
         {
             if (FastwalkPrevention)
             {
-                PacketHandlers.RegisterThrottler(0x02, MovementThrottle_Callback);
+                Network.PacketHandlers.RegisterThrottler(0x02, MovementThrottle_Callback);
             }
 
             EventSink.Login += OnLogin;
@@ -5509,7 +5510,7 @@ namespace Server.Mobiles
         {
             if (checkTurning && (dir & Direction.Mask) != (Direction & Direction.Mask))
             {
-                return RunMount; // We are NOT actually moving (just a direction change)
+                return MovementSettings.TurnDelay; // We are NOT actually moving (just a direction change)
             }
 
             bool running = ((dir & Direction.Running) != 0);
@@ -5520,10 +5521,10 @@ namespace Server.Mobiles
 
             if (onHorse || (animalContext != null && animalContext.SpeedBoost))
             {
-                return (running ? RunMount : WalkMount);
+                return (running ? MovementSettings.MoveSpeedRunningMounted : MovementSettings.MoveSpeedWalkingMounted);
             }
 
-            return (running ? RunFoot : WalkFoot);
+            return (running ? MovementSettings.MoveSpeedRunningUnmounted : MovementSettings.MoveSpeedWalkingUnmounted);
         }
 
         public static bool MovementThrottle_Callback(NetState ns, out bool drop)
